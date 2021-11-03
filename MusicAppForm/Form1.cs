@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NAudio.Wave;
+using Melanchall.DryWetMidi.Multimedia;
+using Melanchall.DryWetMidi.Core;
 
 namespace MusicAppForm
 {
@@ -84,6 +86,19 @@ namespace MusicAppForm
             this.Close();
         }
 
+
+        private void OnEventReceived(object sender, MidiEventReceivedEventArgs e)
+        {
+            var midiDevice = (MidiDevice)sender;
+            Console.WriteLine($"Event received from '{midiDevice.Name}' at {DateTime.Now}: {e.Event}");
+        }
+
+        private void OnEventSent(object sender, MidiEventSentEventArgs e)
+        {
+            var midiDevice = (MidiDevice)sender;
+            Console.WriteLine($"Event sent to '{midiDevice.Name}' at {DateTime.Now}: {e.Event}");
+        }
+
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
@@ -91,6 +106,24 @@ namespace MusicAppForm
 
         private void sourceList_SelectedIndexChanged(object sender, EventArgs e)
         {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            using (var outputDevice = OutputDevice.GetByName("MIDI Device"))
+            {
+                outputDevice.EventSent += OnEventSent;
+
+                using (var inputDevice = InputDevice.GetByName("MIDI Device"))
+                {
+                    inputDevice.EventReceived += OnEventReceived;
+                    inputDevice.StartEventsListening();
+
+                    outputDevice.SendEvent(new NoteOnEvent());
+                    outputDevice.SendEvent(new NoteOffEvent());
+                }
+            }
 
         }
     }

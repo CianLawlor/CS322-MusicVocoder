@@ -37,6 +37,9 @@ namespace MusicAppForm
             this.Device = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Channels = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.button3 = new System.Windows.Forms.Button();
+            this.midiList = new System.Windows.Forms.ListView();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.button5 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button1
@@ -51,7 +54,7 @@ namespace MusicAppForm
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(260, 74);
+            this.button2.Location = new System.Drawing.Point(260, 42);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(112, 24);
             this.button2.TabIndex = 1;
@@ -61,7 +64,7 @@ namespace MusicAppForm
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(260, 134);
+            this.button4.Location = new System.Drawing.Point(260, 72);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(112, 24);
             this.button4.TabIndex = 3;
@@ -71,7 +74,7 @@ namespace MusicAppForm
             // 
             // Exit
             // 
-            this.Exit.Location = new System.Drawing.Point(260, 203);
+            this.Exit.Location = new System.Drawing.Point(260, 205);
             this.Exit.Name = "Exit";
             this.Exit.Size = new System.Drawing.Size(112, 24);
             this.Exit.TabIndex = 4;
@@ -85,10 +88,10 @@ namespace MusicAppForm
             this.Device,
             this.Channels});
             this.sourceList.HideSelection = false;
-            this.sourceList.Location = new System.Drawing.Point(13, 12);
+            this.sourceList.Location = new System.Drawing.Point(4, 12);
             this.sourceList.MultiSelect = false;
             this.sourceList.Name = "sourceList";
-            this.sourceList.Size = new System.Drawing.Size(241, 215);
+            this.sourceList.Size = new System.Drawing.Size(250, 96);
             this.sourceList.TabIndex = 5;
             this.sourceList.UseCompatibleStateImageBehavior = false;
             this.sourceList.View = System.Windows.Forms.View.Details;
@@ -106,26 +109,57 @@ namespace MusicAppForm
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(279, 45);
+            this.button3.Location = new System.Drawing.Point(260, 116);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
+            this.button3.Size = new System.Drawing.Size(112, 23);
             this.button3.TabIndex = 6;
-            this.button3.Text = "button3";
+            this.button3.Text = "Get MIDI Devices";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // midiList
+            // 
+            this.midiList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1});
+            this.midiList.HideSelection = false;
+            this.midiList.Location = new System.Drawing.Point(4, 116);
+            this.midiList.MultiSelect = false;
+            this.midiList.Name = "midiList";
+            this.midiList.Size = new System.Drawing.Size(250, 113);
+            this.midiList.TabIndex = 7;
+            this.midiList.UseCompatibleStateImageBehavior = false;
+            this.midiList.View = System.Windows.Forms.View.Details;
+            this.midiList.SelectedIndexChanged += new System.EventHandler(this.listView1_SelectedIndexChanged_1);
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "MIDI Devices";
+            this.columnHeader1.Width = 120;
+            // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(260, 145);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(112, 23);
+            this.button5.TabIndex = 8;
+            this.button5.Text = "Select MIDI Device";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click_1);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(384, 241);
+            this.ClientSize = new System.Drawing.Size(384, 502);
+            this.Controls.Add(this.button5);
+            this.Controls.Add(this.midiList);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.sourceList);
             this.Controls.Add(this.Exit);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
-            this.MaximumSize = new System.Drawing.Size(400, 280);
+            this.MaximumSize = new System.Drawing.Size(1920, 1080);
             this.MinimumSize = new System.Drawing.Size(400, 280);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -144,6 +178,9 @@ namespace MusicAppForm
         private System.Windows.Forms.ColumnHeader Device;
         private System.Windows.Forms.ColumnHeader Channels;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.ListView midiList;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.Button button5;
     }
 }
 

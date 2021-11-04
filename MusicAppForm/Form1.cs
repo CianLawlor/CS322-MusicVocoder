@@ -10,12 +10,14 @@ using System.Windows.Forms;
 using NAudio.Wave;
 using Melanchall.DryWetMidi.Multimedia;
 using Melanchall.DryWetMidi.Core;
+using NAudio.Midi;
 
 namespace MusicAppForm
 {
     public partial class Form1 : Form
     {
         WaveIn sourceStream = null;
+        public MidiIn midiIn = null;
         DirectSoundOut waveOut = null;
         public Form1()
         {
@@ -86,19 +88,6 @@ namespace MusicAppForm
             this.Close();
         }
 
-
-        private void OnEventReceived(object sender, MidiEventReceivedEventArgs e)
-        {
-            var midiDevice = (MidiDevice)sender;
-            Console.WriteLine($"Event received from '{midiDevice.Name}' at {DateTime.Now}: {e.Event}");
-        }
-
-        private void OnEventSent(object sender, MidiEventSentEventArgs e)
-        {
-            var midiDevice = (MidiDevice)sender;
-            Console.WriteLine($"Event sent to '{midiDevice.Name}' at {DateTime.Now}: {e.Event}");
-        }
-
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
@@ -111,20 +100,48 @@ namespace MusicAppForm
 
         private void button3_Click(object sender, EventArgs e)
         {
-            using (var outputDevice = OutputDevice.GetByName("MIDI Device"))
+            List<MidiInCapabilities> midiInput = new List<MidiInCapabilities>();
+
+            for (int device = 0; device < MidiIn.NumberOfDevices; device++)
             {
-                outputDevice.EventSent += OnEventSent;
-
-                using (var inputDevice = InputDevice.GetByName("MIDI Device"))
-                {
-                    inputDevice.EventReceived += OnEventReceived;
-                    inputDevice.StartEventsListening();
-
-                    outputDevice.SendEvent(new NoteOnEvent());
-                    outputDevice.SendEvent(new NoteOffEvent());
-                }
+                Console.WriteLine(MidiIn.DeviceInfo(device).ProductName);
+                midiInput.Add(MidiIn.DeviceInfo(device));
             }
 
+            midiList.Items.Clear();
+
+            foreach (var device in midiInput)
+            {
+                ListViewItem item = new ListViewItem(device.ProductName);
+                midiList.Items.Add(item);
+            }
+        }
+
+        
+        private void listView1_SelectedIndexChanged_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button5_Click_1(object sender, EventArgs e)
+        {
+            midiIn = new MidiIn(0);
+            
+            midiIn.MessageReceived += midiIn_MessageReceived;
+            midiIn.ErrorReceived += midiIn_ErrorReceived;
+            midiIn.Start();
+        }
+
+        void midiIn_ErrorReceived(object sender, MidiInMessageEventArgs e)
+        {
+            Console.WriteLine(String.Format("Time {0} Message 0x{1:X8} Event {2}",
+                e.Timestamp, e.RawMessage, e.MidiEvent));
+        }
+
+        void midiIn_MessageReceived(object sender, MidiInMessageEventArgs e)
+        {
+            Console.WriteLine(String.Format("Time {0} Message 0x{1:X8} Event {2}",
+                e.Timestamp, e.RawMessage, e.MidiEvent));
         }
     }
 }

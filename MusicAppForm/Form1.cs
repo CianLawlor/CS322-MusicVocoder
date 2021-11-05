@@ -126,10 +126,11 @@ namespace MusicAppForm
         private void button5_Click_1(object sender, EventArgs e)
         {
             midiIn = new MidiIn(0);
-            
+            Console.WriteLine("Started Connecting");
             midiIn.MessageReceived += midiIn_MessageReceived;
             midiIn.ErrorReceived += midiIn_ErrorReceived;
             midiIn.Start();
+            Console.WriteLine("Successfully Connected");
         }
 
         void midiIn_ErrorReceived(object sender, MidiInMessageEventArgs e)

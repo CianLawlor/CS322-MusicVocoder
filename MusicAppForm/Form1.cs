@@ -7,12 +7,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NAudio.Wave.SampleProviders;
 using NAudio.Wave;
 
 namespace MusicAppForm
 {
     public partial class Form1 : Form
     {
+        private BufferedWaveProvider bufferedWaveProvider;
         WaveIn sourceStream = null;
         DirectSoundOut waveOut = null;
         public Form1()
@@ -92,6 +94,47 @@ namespace MusicAppForm
         private void sourceList_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        //Pitch Shift Button
+        private void button3_Click(object sender, EventArgs e)
+        {
+            waveOut = new NAudio.Wave.DirectSoundOut();
+            // Defines a semitone
+            var semitone = Math.Pow(2, 1.0 / 12);
+            var semitoneCount = Int32.Parse("4");
+
+            // Calculates semitones needed in either direction
+            var upOneTone = 100.0f;
+            var downOneTone = 1.0 / upOneTone;
+
+            if (sourceStream == null)
+            {
+                if (sourceList.SelectedItems.Count == 0) return;
+
+                int selectIndex = sourceList.SelectedItems[0].Index;
+
+                sourceStream = new WaveIn();
+                sourceStream.DeviceNumber = selectIndex;
+                sourceStream.DataAvailable += Inject;
+                sourceStream.WaveFormat = new WaveFormat(44100, 1);
+            }
+
+            Console.WriteLine("Running Pitch Shift");
+            bufferedWaveProvider = new BufferedWaveProvider(sourceStream.WaveFormat);
+            var pitch = new SmbPitchShiftingSampleProvider(bufferedWaveProvider.ToSampleProvider());
+            pitch.PitchFactor = 1.5f;
+
+            waveOut.Init(pitch);
+            sourceStream.StartRecording();
+            waveOut.Play();
+        }
+
+        private void Inject(object sender, WaveInEventArgs e)
+        {
+            Console.WriteLine(bufferedWaveProvider == null);
+            if (bufferedWaveProvider == null) return;
+            bufferedWaveProvider.AddSamples(e.Buffer, 0, e.BytesRecorded); //Add the mic audio to the buffer
         }
     }
 }

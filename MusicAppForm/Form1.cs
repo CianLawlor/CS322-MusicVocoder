@@ -144,5 +144,41 @@ namespace MusicAppForm
             Console.WriteLine(String.Format("Time {0} Message 0x{1:X8} Event {2}",
                 e.Timestamp, e.RawMessage, e.MidiEvent));
         }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            double[] signal = FftSharp.SampleData.SampleAudio1();
+            int sampleRate = 48_000;
+
+            // Gets the Power and Frequency Range of Signal Source
+            double[] psd = FftSharp.Transform.FFTpower(signal);
+            double[] freq = FftSharp.Transform.FFTfreq(sampleRate, psd.Length);
+
+            // Get the Fundamental Frequency by Finding Highest Power Index
+            int maxIndex = psd.ToList().IndexOf(psd.Max());
+            double fundamentalFreq = freq[maxIndex];
+            Console.WriteLine("Current Max Freq is " + fundamentalFreq);
+
+            // Get Difference Between Fundamental Pitch and MIDI Input in Semitones
+            double semitoneDiff = calculateSemitoneDiff(fundamentalFreq, );
+        }
+
+        private double calculateSemitoneDiff(double voiceFreq, double midiFreq)
+        {
+            // The Initialisation can be Extracted to Run Once at start of program
+            string notes = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"];
+            List<String> fullNotes = new List<String>();
+
+            // Creates List of All Notes in Each Octave
+            for(int i = 0; i < notes.Length; i++)
+            {
+                for(int j = 0; i < 8; i++)
+                {
+                    fullNotes.Add(notes[j].ToString() + i);
+                }
+            }
+
+            return Math.Round(Math.Abs(voiceFreq - midiFreq) * Math.Pow(2, 1.0 / 12));
+        }
     }
 }

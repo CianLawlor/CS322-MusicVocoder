@@ -19,6 +19,8 @@ namespace MusicAppForm
         WaveIn sourceStream = null;
         public MidiIn midiIn = null;
         DirectSoundOut waveOut = null;
+        public string currentNote = null;
+
         public Form1()
         {
             InitializeComponent();
@@ -33,14 +35,14 @@ namespace MusicAppForm
         {
             List<WaveInCapabilities> sources = new List<WaveInCapabilities>();
 
-            for( int i = 0; i < WaveIn.DeviceCount; i++)
+            for (int i = 0; i < WaveIn.DeviceCount; i++)
             {
                 sources.Add(WaveIn.GetCapabilities(i));
             }
 
             sourceList.Items.Clear();
 
-            foreach(var source in sources)
+            foreach (var source in sources)
             {
                 ListViewItem item = new ListViewItem(source.ProductName);
                 item.SubItems.Add(new ListViewItem.ListViewSubItem(item, source.Channels.ToString()));
@@ -117,7 +119,7 @@ namespace MusicAppForm
             }
         }
 
-        
+
         private void listView1_SelectedIndexChanged_1(object sender, EventArgs e)
         {
 
@@ -141,8 +143,9 @@ namespace MusicAppForm
 
         void midiIn_MessageReceived(object sender, MidiInMessageEventArgs e)
         {
-            Console.WriteLine(String.Format("Time {0} Message 0x{1:X8} Event {2}",
-                e.Timestamp, e.RawMessage, e.MidiEvent));
+            Console.WriteLine(String.Format("Time {0} Message 0x{1:X8} Event {2}", e.Timestamp, e.RawMessage, e.MidiEvent));
+            int start = e.MidiEvent.indexOf("Vel") - 3;
+            this.currentNote = e.MidiEvent.Substring(start, start + 3).Trim();
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -160,25 +163,36 @@ namespace MusicAppForm
             Console.WriteLine("Current Max Freq is " + fundamentalFreq);
 
             // Get Difference Between Fundamental Pitch and MIDI Input in Semitones
-            double semitoneDiff = calculateSemitoneDiff(fundamentalFreq, );
+            double semitoneDiff = calculateSemitoneDiff(fundamentalFreq, this.currentNote);
         }
 
-        private double calculateSemitoneDiff(double voiceFreq, double midiFreq)
+        private double calculateSemitoneDiff(double voiceFreq, string midiFreq)
         {
             // The Initialisation can be Extracted to Run Once at start of program
             string notes = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"];
+            List<String> noteNumbers = new List<String>();
             List<String> fullNotes = new List<String>();
 
             // Creates List of All Notes in Each Octave
-            for(int i = 0; i < notes.Length; i++)
+            for (int i = 0; i < notes.Length; i++)
             {
-                for(int j = 0; i < 8; i++)
+                for (int j = 0; i < 8; i++)
                 {
                     fullNotes.Add(notes[j].ToString() + i);
                 }
             }
 
-            return Math.Round(Math.Abs(voiceFreq - midiFreq) * Math.Pow(2, 1.0 / 12));
+            // Calculate Note Values
+            for (int i = 0; i < fullNotes.Length; i++)
+            {
+                noteNumbers.Add(i);
+            }
+
+            int index = fullNotes.IndexOf(midiFreq);
+            int noteID = noteNumbers[index];
+            double midiFreqNew = Math.Pow(2, (noteID - 49) / 12.0) * 440;
+
+            return Math.Round(Math.Abs(voiceFreq - midiFreqNew) * Math.Pow(2, 1.0 / 12));
         }
     }
 }

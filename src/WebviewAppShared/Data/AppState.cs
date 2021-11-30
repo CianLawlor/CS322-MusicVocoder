@@ -7,6 +7,28 @@ namespace WebviewAppTest
 {
     public class AppState
     {
+        
+        /// INPUT DEVICE STATUS
+        public string[] selectedInputDevice { get; set; }
+
+        public void setInputDevices(string[] inp)
+        {
+            selectedInputDevice = inp;
+        }
+
+        ///OUTPUT DEVICE STATUS
+        
+        public event EventHandler outputDeviceChanged;
+
+        public int selectedOutputDeviceIndex { get; set; }
+        public string[] selectedOutputDevice { get; set; }
+
+
+        ///RECORD STATUS
+
+        public event EventHandler recordStatusChanged;
+        public string _recordStatus;
+
         public event EventHandler inputChanged;
 
         private void OnInputChanged()
@@ -18,37 +40,20 @@ namespace WebviewAppTest
             }
         }
 
-        public event EventHandler outputChanged;
-
-        public int Counter { get; set; }
 
         private int _selectedInputDeviceIndex;
-        public int selectedInputDeviceIndex {
-            get { return _selectedInputDeviceIndex; } 
-            set { 
-                if(value != _selectedInputDeviceIndex)
+        public int selectedInputDeviceIndex
+        {
+            get { return _selectedInputDeviceIndex; }
+            set
+            {
+                if (value != _selectedInputDeviceIndex)
                 {
                     _selectedInputDeviceIndex = value;
                     OnInputChanged();
                 }
-            } 
+            }
         }
-
-        public string[] selectedInputDevice { get; set; }
-
-        public void setInputDevices(string[] inp)
-        {
-            selectedInputDevice = inp;
-        }
-
-        public int selectedOutputDeviceIndex { get; set; }
-        public string[] selectedOutputDevice { get; set; }
-
-
-        ///RECORD STATUS
-
-        public event EventHandler recordStatusChanged;
-        public string _recordStatus;
 
         private void OnRecordStatusChanged()
         {
@@ -70,5 +75,49 @@ namespace WebviewAppTest
                 }
             }
         }
+
+        //RECORD PITCH VALUE & STATUS
+        public event EventHandler pitchStatusChanged;
+        public event EventHandler pitchValueChanged;
+        public int _pitchValue;
+        public string _pitchStatus;
+
+        private void OnPitchValueChanged()
+        {
+            EventHandler eh = pitchValueChanged;
+            if (eh != null)
+            {
+                pitchValueChanged(this, EventArgs.Empty);
+            }
+        }
+
+        private void OnPitchStatusChanged()
+        {
+            EventHandler eh = pitchStatusChanged;
+            if (eh != null)
+            {
+                pitchStatusChanged(this, EventArgs.Empty);
+            }
+        }
+
+        public int pitchValue
+        {
+            get { return _pitchValue; }
+            set
+            {
+                 _pitchValue = value-1;
+                 OnPitchValueChanged();
+            }
+        }
+        public string pitchStatus
+        {
+            get { return _pitchStatus; }
+            set
+            {
+                 _pitchStatus = value;
+                 OnPitchStatusChanged();
+            }
+        }
+
     }
 }

@@ -7,6 +7,7 @@ using WebviewAppTest;
 using WebviewAppTest.Data;
 using NAudio.Wave.SampleProviders;
 using NAudio.Wave;
+using Syncfusion.Blazor;
 using System.Collections.Generic;
 using System;
 
@@ -19,8 +20,12 @@ namespace BlazorWpfApp
     {
         private AppState _appState = new();
         private int inputIndex = -1;
-        private BufferedWaveProvider bufferedWaveProvider;
+        private string _pitchStatus = "stop";
+        private int _pitchValue = 0;
+        private BufferedWaveProvider bufferedWaveProviderPitch;
+        private BufferedWaveProvider bufferedWaveProviderNormal;
         WaveIn sourceStream = null;
+        WaveIn pitchStream = null;
         DirectSoundOut waveOut = null;
 
 
@@ -30,10 +35,14 @@ namespace BlazorWpfApp
             serviceCollection.AddBlazorWebView();
             serviceCollection.AddSingleton<AppState>(_appState);
             serviceCollection.AddSingleton<WeatherForecastService>();
+            serviceCollection.AddSyncfusionBlazor();
 
             _appState.selectedInputDeviceIndex = -1;
             _appState.inputChanged += new EventHandler(setInputIndex);
             _appState.recordStatusChanged += new EventHandler(onRecordStatusUpdate);
+            _appState.pitchStatusChanged += new EventHandler(onPitchStatusUpdate);
+            _appState.pitchValueChanged += new EventHandler(onPitchValueUpdate);
+
 
             GetAndSetInputs();
 
@@ -75,19 +84,59 @@ namespace BlazorWpfApp
             inputIndex = ((AppState)sender).selectedInputDeviceIndex;
         }
 
+        private void onPitchStatusUpdate(object sender, EventArgs e)
+        {
+            _pitchStatus = ((AppState)sender).pitchStatus;
+        }
+
+        private void onPitchValueUpdate(object sender, EventArgs e)
+        {
+            _pitchValue = ((AppState)sender).pitchValue;
+            System.Diagnostics.Debug.WriteLine(_pitchValue);
+        }
+
         private void onRecordStatusUpdate(object sender, EventArgs e)
         {
-            if(inputIndex != -1 && ((AppState)sender).recordStatus == "record")
+            // Defines a semitone
+            var semitone = Math.Pow(2, 1.0 / 12);
+            var semitoneCount = Int32.Parse("4");
+
+            // Calculates semitones needed in either direction
+            var upOneTone = 100.0f;
+            var downOneTone = 1.0 / upOneTone;
+
+            if (inputIndex != -1 && ((AppState)sender).recordStatus == "record")
             {
                 sourceStream = new WaveIn();
                 sourceStream.DeviceNumber = inputIndex;
-                sourceStream.WaveFormat = new NAudio.Wave.WaveFormat(44100, NAudio.Wave.WaveIn.GetCapabilities(inputIndex).Channels);
+                sourceStream.DataAvailable += InjectNormal;
 
-                WaveInProvider waveIn = new WaveInProvider(sourceStream);
+
+                pitchStream = new WaveIn();
+                pitchStream.DeviceNumber = inputIndex;
+                pitchStream.DataAvailable += InjectPitch;
+
+                sourceStream.WaveFormat = new NAudio.Wave.WaveFormat(44100, 1);
+                pitchStream.WaveFormat = new NAudio.Wave.WaveFormat(44100, 1);
+
+                bufferedWaveProviderNormal = new BufferedWaveProvider(sourceStream.WaveFormat);
+                var normal = new SmbPitchShiftingSampleProvider(bufferedWaveProviderNormal.ToSampleProvider());
+
+                bufferedWaveProviderPitch = new BufferedWaveProvider(pitchStream.WaveFormat);
+                var pitch = new SmbPitchShiftingSampleProvider(bufferedWaveProviderPitch.ToSampleProvider());
+                pitch.PitchFactor = 1.5f;
+
                 waveOut = new NAudio.Wave.DirectSoundOut();
-                waveOut.Init(waveIn);
+
+                if(_pitchStatus == "record" && _pitchValue != -1) {
+                    pitchStream.StartRecording();
+                }
 
                 sourceStream.StartRecording();
+
+                var mixer = new MixingSampleProvider(new[] { normal, pitch });
+                waveOut.Init(mixer);
+
                 waveOut.Play();
             } else if (inputIndex != -1 && ((AppState)sender).recordStatus == "stop")
             {
@@ -103,7 +152,39 @@ namespace BlazorWpfApp
                     sourceStream.Dispose();
                     sourceStream = null;
                 }
+                if (pitchStream != null)
+                {
+                    pitchStream.StopRecording();
+                    pitchStream.Dispose();
+                    pitchStream = null;
+                }
+                if (bufferedWaveProviderNormal != null)
+                {
+                    bufferedWaveProviderNormal.ClearBuffer();
+                }
+                if (bufferedWaveProviderPitch != null)
+                {
+                    bufferedWaveProviderPitch.ClearBuffer();
+                }
             }
+        }
+
+        private void InjectPitch(object sender, WaveInEventArgs e)
+        {
+            Console.WriteLine(bufferedWaveProviderPitch == null);
+            if (bufferedWaveProviderPitch == null) return;
+            bufferedWaveProviderPitch.AddSamples(e.Buffer, 0, e.BytesRecorded); //Add the mic audio to the buffer
+
+            System.Diagnostics.Debug.WriteLine(bufferedWaveProviderPitch.BufferedBytes);
+        }
+
+        private void InjectNormal(object sender, WaveInEventArgs e)
+        {
+            Console.WriteLine(bufferedWaveProviderNormal == null);
+            if (bufferedWaveProviderNormal == null) return;
+            bufferedWaveProviderNormal.AddSamples(e.Buffer, 0, e.BytesRecorded); //Add the mic audio to the buffer
+
+            System.Diagnostics.Debug.WriteLine(bufferedWaveProviderNormal.BufferedBytes);
         }
     }
 

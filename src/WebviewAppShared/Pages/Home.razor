@@ -1,3 +1,23 @@
 ﻿@page "/"
+@inject WebviewAppTest.AppState AppState
 
-<h1>This is the homepage.</h1> 
+<h1>@record</h1> 
+<button @onclick="@ToggleRecord"> Toggle Record </button>
+
+@code {
+    private string record = "stop";
+
+    private void ToggleRecord()
+    {
+        if (record == "stop")
+        {
+            AppState.selectedInputDeviceIndex = 0;
+            AppState.recordStatus = "record";
+            record = "record";
+        } else
+        {
+            AppState.recordStatus = "stop";
+            record = "stop";
+        }
+    }
+}

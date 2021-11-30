@@ -13,7 +13,7 @@ namespace BlazorWinFormsApp
 {
     public partial class Form1 : Form
     {
-        private readonly AppState _appState = new();
+        private AppState _appState = new();
 
         public Form1()
         {
@@ -28,14 +28,18 @@ namespace BlazorWinFormsApp
             blazorWebView1.HostPage = @"wwwroot\index.html";
             blazorWebView1.Services = serviceCollection.BuildServiceProvider();
             blazorWebView1.RootComponents.Add<App>("#app");
+
+            
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e)
         {
             MessageBox.Show(
                 owner: this,
-                text: $"Current counter value is: {_appState.Counter}",
+                text: $"Clinking",
                 caption: "Counter");
+
+            _appState.setInputDevices(new string[] { "Test" });
         }
 
         private void groupBox1_Enter(object sender, EventArgs e)

@@ -144,8 +144,8 @@ namespace MusicAppForm
         void midiIn_MessageReceived(object sender, MidiInMessageEventArgs e)
         {
             Console.WriteLine(String.Format("Time {0} Message 0x{1:X8} Event {2}", e.Timestamp, e.RawMessage, e.MidiEvent));
-            int start = e.MidiEvent.indexOf("Vel") - 3; // Gets Index of Location of MIDI Note
-            this.currentNote = e.MidiEvent.Substring(start, start + 3).Trim();  // Extract MIDI Note (C3) from MIDI Event String
+            int start = e.MidiEvent.ToString().IndexOf("Vel") - 3; // Gets Index of Location of MIDI Note
+            this.currentNote = e.MidiEvent.ToString().Substring(start, start + 3).Trim();  // Extract MIDI Note (C3) from MIDI Event String
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -169,9 +169,9 @@ namespace MusicAppForm
         private double calculateSemitoneDiff(double voiceFreq, string midiFreq)
         {
             // The Initialisation can be Extracted to Run Once at start of program
-            string notes = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"];
+            string[] notes = new string[] { "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#" };
 
-            List<String> noteNumbers = new List<String>();  // Holds all Notes Generated ([A1, A#1, B1 ... F8, F#8, G8])
+            List<int> noteNumbers = new List<int>();  // Holds all Notes Generated ([A1, A#1, B1 ... F8, F#8, G8])
             List<String> fullNotes = new List<String>();    // Holds Notes MIDI Number (https://newt.phys.unsw.edu.au/jw/graphics/notes.GIF)
 
             // Creates List of All Notes in Each Octave ([A1, A#1, B1 ... F8, F#8, G8]) (https://musicnotes101.files.wordpress.com/2010/04/piano.jpg)
@@ -184,7 +184,7 @@ namespace MusicAppForm
             }
 
             // Calculate MIDI Note Values (48 = A4, 49 = A#4...)
-            for (int i = 0; i < fullNotes.Length; i++)
+            for (int i = 0; i < fullNotes.Count; i++)
             {
                 noteNumbers.Add(i);
             }

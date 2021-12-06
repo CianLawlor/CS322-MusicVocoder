@@ -161,7 +161,7 @@ namespace MusicAppForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(384, 502);
+            this.ClientSize = new System.Drawing.Size(384, 241);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.midiList);
@@ -174,7 +174,7 @@ namespace MusicAppForm
             this.MaximumSize = new System.Drawing.Size(1920, 1080);
             this.MinimumSize = new System.Drawing.Size(400, 280);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Testing";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
 

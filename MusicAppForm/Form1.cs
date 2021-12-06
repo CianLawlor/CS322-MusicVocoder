@@ -143,9 +143,9 @@ namespace MusicAppForm
 
         void midiIn_MessageReceived(object sender, MidiInMessageEventArgs e)
         {
-            Console.WriteLine(String.Format("Time {0} Message 0x{1:X8} Event {2}", e.Timestamp, e.RawMessage, e.MidiEvent));
             int start = e.MidiEvent.ToString().IndexOf("Vel") - 3; // Gets Index of Location of MIDI Note
-            this.currentNote = e.MidiEvent.ToString().Substring(start, start + 3).Trim();  // Extract MIDI Note (C3) from MIDI Event String
+            Console.WriteLine("Current Note is " + e.MidiEvent.ToString().Substring(start, 3).Trim());
+            this.currentNote = e.MidiEvent.ToString().Substring(start, 3).Trim();  // Extract MIDI Note (C3) from MIDI Event String
         }
 
         private void button6_Click(object sender, EventArgs e)

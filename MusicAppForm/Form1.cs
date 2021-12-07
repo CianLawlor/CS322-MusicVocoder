@@ -143,9 +143,9 @@ namespace MusicAppForm
 
         void midiIn_MessageReceived(object sender, MidiInMessageEventArgs e)
         {
-            int start = e.MidiEvent.ToString().IndexOf("Vel") - 3; // Gets Index of Location of MIDI Note
-            Console.WriteLine("Current Note is " + e.MidiEvent.ToString().Substring(start, 3).Trim());
+            int start = e.MidiEvent.ToString().IndexOf("Vel") - 4; // Gets Index of Location of MIDI Note
             this.currentNote = e.MidiEvent.ToString().Substring(start, 3).Trim();  // Extract MIDI Note (C3) from MIDI Event String
+            yeet();
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -166,6 +166,23 @@ namespace MusicAppForm
             double semitoneDiff = calculateSemitoneDiff(fundamentalFreq, this.currentNote);
         }
 
+        private void yeet()
+        {
+
+            double[] signal = FftSharp.SampleData.SampleAudio1();   // This Is Just A Sample Signal, Can Be Replaced By the Audio Buffer
+            int sampleRate = 48_000;                                // How Many Times the Audio Should Be Measured Each Second
+
+            double[] psd = FftSharp.Transform.FFTpower(signal);     // Gets the Power of each frequency from Signal (https://raw.githubusercontent.com/swharden/FftSharp/master/dev/quickstart/periodogram.png)
+            double[] freq = FftSharp.Transform.FFTfreq(sampleRate, psd.Length);
+
+            // Get the Fundamental Frequency by Finding Highest Power Index
+            int maxIndex = psd.ToList().IndexOf(psd.Max());         // Finds the Frequency with the highest power
+            double fundamentalFreq = freq[maxIndex];                // Sets 'fundamentalFreq' to that highest frequency
+
+            // Get Difference Between Fundamental Pitch and MIDI Input in Semitones
+            double semitoneDiff = calculateSemitoneDiff(fundamentalFreq, this.currentNote);
+        }
+
         private double calculateSemitoneDiff(double voiceFreq, string midiFreq)
         {
             // The Initialisation can be Extracted to Run Once at start of program
@@ -175,22 +192,27 @@ namespace MusicAppForm
             List<String> fullNotes = new List<String>();    // Holds Notes MIDI Number (https://newt.phys.unsw.edu.au/jw/graphics/notes.GIF)
 
             // Creates List of All Notes in Each Octave ([A1, A#1, B1 ... F8, F#8, G8]) (https://musicnotes101.files.wordpress.com/2010/04/piano.jpg)
-            for (int i = 0; i < notes.Length; i++)
+            for (int i = 0; i < 8; i++)
             {
-                for (int j = 0; i < 8; i++)
+                for (int j = 0; j < 8; j++)
                 {
-                    fullNotes.Add(notes[j].ToString() + i);
+                    fullNotes.Add(notes[j] + i);
                 }
             }
+            int count = 21;
 
             // Calculate MIDI Note Values (48 = A4, 49 = A#4...)
             for (int i = 0; i < fullNotes.Count; i++)
             {
-                noteNumbers.Add(i);
+                noteNumbers.Add(count);
+                count++;
             }
+
+            Console.WriteLine("Note is " + midiFreq);
 
             int index = fullNotes.IndexOf(midiFreq);        // Takes MIDI Input (C3) and Gets It's Index
             int noteID = noteNumbers[index];                // Using Index, Finds MIDI Inputs Corresponding MIDI Value
+
             double midiFreqNew = Math.Pow(2, (noteID - 49) / 12.0) * 440;   // Calculates MIDI Note Frequency from Value
 
             // Calculates Difference Between Fundamental Freq. of our Voice and MIDI Note, Then Converts it to Semitone Difference

@@ -1,0 +1,58 @@
+﻿@page "/fetchoutputs"
+@inject WebviewAppTest.AppState AppState
+
+<h1>Input Devices</h1>
+
+<p>Select Input Device To Record From.</p>
+
+@if (inputs == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Device Name</th>
+                <th>Device Channels</th>
+            </tr>
+        </thead>
+        <tbody>
+             @for (var i = 0; i< inputs.Length; i+=2)
+            {
+                <tr>
+                    <td>@inputs[i]</td>
+                    <td>@inputs[i+1]</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private string[] inputs;
+    private string[] outputs;
+    private int inputIndex;
+    private int outputIndex;
+
+    protected override async Task OnInitializedAsync()
+    {
+        inputIndex = -1;
+        outputIndex = -1;
+        inputs = AppState.selectedInputDevice;
+        outputs = AppState.selectedInputDevice;
+    }
+
+    private void SelectInput(int selected)
+    {
+        AppState.selectedInputDeviceIndex = selected;
+        inputIndex = selected;
+    }
+
+    private void SelectOutput(int selected)
+    {
+        AppState.selectedOutputDeviceIndex = selected;
+        outputIndex = selected;
+    }
+}

@@ -1,0 +1,29 @@
+﻿@page "/"
+@inject WebviewAppTest.AppState AppState
+
+<h1>@record</h1> 
+<button @onclick="@ToggleRecord"> Toggle Record </button>
+
+@code {
+    private string record;
+
+    protected override async Task OnInitializedAsync()
+    {
+        record = AppState.recordStatus;
+    }
+
+    private void ToggleRecord()
+    {
+        System.Diagnostics.Debug.WriteLine(AppState.recordStatus + "HOME");
+        if (AppState.recordStatus == "stop")
+        {
+            AppState.selectedInputDeviceIndex = 0;
+            AppState.recordStatus = "record";
+            record = AppState.recordStatus;
+        } else
+        {
+            AppState.recordStatus = "stop";
+            record = AppState.recordStatus;
+        }
+    }
+}

@@ -22,6 +22,9 @@ namespace BlazorWpfApp
         private AppState _appState = new();
         private int inputIndex = -1;
 
+        public MidiIn midiIn = null;
+        public string currentNote = null;
+
         private string _pitchStatus;
         private string _recordStatus;
         private int _pitchValue = 0;
@@ -84,6 +87,28 @@ namespace BlazorWpfApp
             }
 
             _appState.setInputDevices(output);
+        }
+
+        private void connectMIDIDevice(object sender, EventArgs e)
+        {
+            midiIn = new MidiIn(0);
+            Console.WriteLine("Started Connecting");
+            midiIn.MessageReceived += midiIn_MessageReceived;
+            midiIn.ErrorReceived += midiIn_ErrorReceived;
+            midiIn.Start();
+            Console.WriteLine("Successfully Connected");
+        }
+
+        void midiIn_ErrorReceived(object sender, MidiInMessageEventArgs e)
+        {
+            Console.WriteLine(String.Format("Time {0} Message 0x{1:X8} Event {2}",
+                e.Timestamp, e.RawMessage, e.MidiEvent));
+        }
+
+        void midiIn_MessageReceived(object sender, MidiInMessageEventArgs e)
+        {
+            int start = e.MidiEvent.ToString().IndexOf("Vel") - 4; // Gets Index of Location of MIDI Note
+            this.currentNote = e.MidiEvent.ToString().Substring(start, 3).Trim();  // Extract MIDI Note (C3) from MIDI Event String
         }
 
         private void GetAndSetMIDI()
@@ -314,7 +339,7 @@ namespace BlazorWpfApp
             double fundamentalFreq = freq[maxIndex];                // Sets 'fundamentalFreq' to that highest frequency
 
             // Get Difference Between Fundamental Pitch and MIDI Input in Semitones
-            double semitoneDiff = calculateSemitoneDiff(fundamentalFreq, "C4");
+            double semitoneDiff = calculateSemitoneDiff(fundamentalFreq, this.currentNote);
             
             var diff = Math.Pow(semitoneDiff, 1.0 / 12);
             if(diff is double.NaN)

@@ -342,6 +342,9 @@ namespace BlazorWpfApp
             double semitoneDiff = calculateSemitoneDiff(fundamentalFreq, this.currentNote);
             
             var diff = Math.Pow(semitoneDiff, 1.0 / 12);
+
+            diff = (diff >= 0) ? diff * diff : 1 / diff;
+
             if(diff is double.NaN)
             {
                     diff = lastPitch;

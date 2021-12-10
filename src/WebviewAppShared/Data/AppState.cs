@@ -11,7 +11,9 @@ namespace WebviewAppTest
         {
             recordStatus = "stop";
             pitchStatus = "stop";
+            normalRecord = "enabled";
             selectedInputDeviceIndex = -1;
+            pitchMethod = "None";
         }
 
         /// AVAILABLE INPUT DEVICES
@@ -101,8 +103,10 @@ namespace WebviewAppTest
         //RECORD PITCH VALUE & STATUS
         public event EventHandler pitchStatusChanged;
         public event EventHandler pitchValueChanged;
-        public int _pitchValue;
+        public event EventHandler pitchMethodChanged;
+        public string _pitchValue;
         public string _pitchStatus;
+        public string _pitchMethod;
 
         private void OnPitchValueChanged()
         {
@@ -122,12 +126,22 @@ namespace WebviewAppTest
             }
         }
 
-        public int pitchValue
+        private void OnPitchMethodChanged()
+        {
+            EventHandler eh = pitchMethodChanged;
+            if (eh != null)
+            {
+                System.Diagnostics.Debug.WriteLine(_pitchMethod);
+                pitchMethodChanged(this, EventArgs.Empty);
+            }
+        }
+
+        public string pitchValue
         {
             get { return _pitchValue; }
             set
             {
-                _pitchValue = value - 1;
+                _pitchValue = value;
                 OnPitchValueChanged();
             }
         }
@@ -138,6 +152,41 @@ namespace WebviewAppTest
             {
                 _pitchStatus = value;
                 OnPitchStatusChanged();
+            }
+        }
+
+        public string pitchMethod
+        {
+            get { return _pitchMethod; }
+            set
+            {
+                _pitchMethod= value;
+                OnPitchMethodChanged();
+            }
+        }
+
+        ///NORMAL RECORD STATUS
+
+        public event EventHandler normalRecordChanged;
+        public string _normalRecord;
+
+        private void OnNormalRecordChanged()
+        {
+            EventHandler eh = inputChanged;
+            if (eh != null)
+            {
+                normalRecordChanged(this, EventArgs.Empty);
+            }
+        }
+
+        public string normalRecord
+        {
+            get { return _normalRecord; }
+            set
+            {
+                _normalRecord = value;
+                OnNormalRecordChanged();
+
             }
         }
 

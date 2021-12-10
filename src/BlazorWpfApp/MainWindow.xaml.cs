@@ -27,9 +27,9 @@ namespace BlazorWpfApp
 
         private string _pitchStatus;
         private string _recordStatus;
-        private int _pitchValue = 0;
-        private float pitchFactor = 1.0f;
-        private int SampleRate = 48000;
+        private string _pitchValue = "";
+        private string _pitchMethod;
+        private string _normalRecord;
         private SmbPitchShiftingSampleProvider pitch;
         private BufferedWaveProvider bufferedWaveProviderPitch;
         private BufferedWaveProvider bufferedWaveProviderNormal;
@@ -52,7 +52,8 @@ namespace BlazorWpfApp
             _appState.recordStatusChanged += new EventHandler(onRecordStatusUpdate);
             _appState.pitchStatusChanged += new EventHandler(onPitchStatusUpdate);
             _appState.pitchValueChanged += new EventHandler(onPitchValueUpdate);
-
+            _appState.pitchMethodChanged += new EventHandler(onPitchMethodUpdate);
+            _appState.normalRecordChanged += new EventHandler(onNormalRecordUpdate);
 
             GetAndSetInputs();
             GetAndSetMIDI();
@@ -89,26 +90,27 @@ namespace BlazorWpfApp
             _appState.setInputDevices(output);
         }
 
-        private void connectMIDIDevice(object sender, EventArgs e)
+        private void connectMIDIDevice()
         {
             midiIn = new MidiIn(0);
-            Console.WriteLine("Started Connecting");
+            //Console.WriteLine("Started Connecting");
             midiIn.MessageReceived += midiIn_MessageReceived;
             midiIn.ErrorReceived += midiIn_ErrorReceived;
             midiIn.Start();
-            Console.WriteLine("Successfully Connected");
+            //Console.WriteLine("Successfully Connected");
         }
 
         void midiIn_ErrorReceived(object sender, MidiInMessageEventArgs e)
         {
-            Console.WriteLine(String.Format("Time {0} Message 0x{1:X8} Event {2}",
-                e.Timestamp, e.RawMessage, e.MidiEvent));
+            //Console.WriteLine(String.Format("Time {0} Message 0x{1:X8} Event {2}",
+               // e.Timestamp, e.RawMessage, e.MidiEvent));
         }
 
         void midiIn_MessageReceived(object sender, MidiInMessageEventArgs e)
         {
             int start = e.MidiEvent.ToString().IndexOf("Vel") - 4; // Gets Index of Location of MIDI Note
-            this.currentNote = e.MidiEvent.ToString().Substring(start, 3).Trim();  // Extract MIDI Note (C3) from MIDI Event String
+            currentNote = e.MidiEvent.ToString().Substring(start, 3).Trim();  // Extract MIDI Note (C3) from MIDI Event String
+            //System.Diagnostics.Debug.WriteLine(currentNote);
         }
 
         private void GetAndSetMIDI()
@@ -118,7 +120,7 @@ namespace BlazorWpfApp
 
             for (int device = 0; device < MidiIn.NumberOfDevices; device++)
             {
-                Console.WriteLine(MidiIn.DeviceInfo(device).ProductName);
+                //Console.WriteLine(MidiIn.DeviceInfo(device).ProductName);
                 midiInput.Add(MidiIn.DeviceInfo(device));
             }
 
@@ -146,6 +148,29 @@ namespace BlazorWpfApp
         private void onPitchValueUpdate(object sender, EventArgs e)
         {
             _pitchValue = ((AppState)sender).pitchValue;
+            //System.Diagnostics.Debug.WriteLine(_pitchValue);
+        }
+
+        private void onNormalRecordUpdate(object sender, EventArgs e)
+        {
+            _normalRecord = ((AppState)sender).normalRecord;
+            //System.Diagnostics.Debug.WriteLine(_pitchValue);
+        }
+
+        private void onPitchMethodUpdate(object sender, EventArgs e)
+        {
+            _pitchMethod = ((AppState)sender).pitchMethod;
+
+            if(((AppState)sender).pitchMethod == "MIDI")
+            {
+                connectMIDIDevice();
+            } else
+            {
+                if(midiIn != null)
+                {
+                    midiIn = null;
+                }
+            }
             //System.Diagnostics.Debug.WriteLine(_pitchValue);
         }
 
@@ -179,12 +204,16 @@ namespace BlazorWpfApp
 
                 waveOut = new NAudio.Wave.DirectSoundOut();
 
-                if (_pitchStatus == "record")
+                if (_pitchStatus == "record" && _pitchMethod != "none" && _pitchValue != "")
                 {
                     pitchStream.StartRecording();
                 }
 
-                sourceStream.StartRecording();
+                if (_pitchStatus == "record" && _normalRecord == "enabled")
+                {
+                    sourceStream.StartRecording();
+                }
+                
 
                 mixer = new MixingSampleProvider(new[] { normal, pitch });
                 waveOut.Init(mixer);
@@ -273,7 +302,7 @@ namespace BlazorWpfApp
             int index = fullNotes.IndexOf(midiFreq);        // Takes MIDI Input (C3) and Gets It's Index
             int noteID = noteNumbers[index];                // Using Index, Finds MIDI Inputs Corresponding MIDI Value
 
-            System.Diagnostics.Debug.WriteLine(noteID);
+            //System.Diagnostics.Debug.WriteLine(noteID);
             //(a / 32) * (2 ** ((note - 9) / 12));
             double midiFreqNew = Math.Pow(2, ((noteID - 8) / 12.0)) * (440/32);   // Calculates MIDI Note Frequency from Value
 
@@ -288,9 +317,9 @@ namespace BlazorWpfApp
             }
 
             lastNote = newNote;
-            System.Diagnostics.Debug.WriteLine(newNote);
+            //System.Diagnostics.Debug.WriteLine(newNote);
             // Calculates Difference Between Fundamental Freq. of our Voice and MIDI Note, Then Converts it to Semitone Difference
-            System.Diagnostics.Debug.WriteLine(Math.Round(Math.Abs(voiceFreq - midiFreqNew)));
+            //System.Diagnostics.Debug.WriteLine(Math.Round(Math.Abs(voiceFreq - midiFreqNew)));
             return (closestFreq - index);
         }
 
@@ -339,8 +368,8 @@ namespace BlazorWpfApp
             double fundamentalFreq = freq[maxIndex];                // Sets 'fundamentalFreq' to that highest frequency
 
             // Get Difference Between Fundamental Pitch and MIDI Input in Semitones
-            double semitoneDiff = calculateSemitoneDiff(fundamentalFreq, this.currentNote);
-            
+            double semitoneDiff = calculateSemitoneDiff(fundamentalFreq, _pitchValue);
+                System.Diagnostics.Debug.WriteLine(semitoneDiff);
             var diff = Math.Pow(semitoneDiff, 1.0 / 12);
 
             diff = (diff >= 0) ? diff * diff : 1 / diff;
@@ -352,7 +381,7 @@ namespace BlazorWpfApp
             {
                     lastPitch = (float) diff;
             }
-            System.Diagnostics.Debug.WriteLine("Diff " + diff);
+            //System.Diagnostics.Debug.WriteLine("Diff " + diff);
                 pitch.PitchFactor = (float) diff;
             }
         }

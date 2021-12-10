@@ -1,20 +1,30 @@
 ﻿@page "/"
 @inject WebviewAppTest.AppState AppState
 
-<h1>@record</h1> 
+<h1>Recording Status: @record</h1> 
 <button @onclick="@ToggleRecord"> Toggle Record </button>
+
+<h1>Unpitched Voice: @normal</h1> 
+<button @onclick="@ToggleNormal"> Toggle Output </button>
+
+<h1>Pitch selection method: @method</h1> 
+<button @onclick="@ToggleMethod"> Toggle Method </button>
 
 @code {
     private string record;
+    private string normal;
+    private string method;
 
     protected override async Task OnInitializedAsync()
     {
         record = AppState.recordStatus;
+        method = AppState.pitchMethod;
+        normal = AppState.normalRecord;
     }
 
     private void ToggleRecord()
     {
-        System.Diagnostics.Debug.WriteLine(AppState.recordStatus + "HOME");
+        //System.Diagnostics.Debug.WriteLine(AppState.recordStatus + "HOME");
         if (AppState.recordStatus == "stop")
         {
             AppState.selectedInputDeviceIndex = 0;
@@ -25,5 +35,28 @@
             AppState.recordStatus = "stop";
             record = AppState.recordStatus;
         }
+    }
+
+    private void ToggleNormal()
+    {
+        if (AppState.normalRecord == "disabled")
+        {
+            AppState.normalRecord = "enabled";
+            normal = AppState.normalRecord;
+        } else
+        {
+            AppState.normalRecord = "disabled";
+            normal = AppState.normalRecord;
+        }
+        //System.Diagnostics.Debug.WriteLine(AppState.normalRecord);
+    }
+
+    private void ToggleMethod()
+    {
+        List<String> methods = new List<String>{ "None", "Manual", "MIDI" };
+        int ind = methods.IndexOf(AppState.pitchMethod);
+
+        AppState.pitchMethod = methods[(ind + 1) % 3];
+        method = methods[(ind + 1) % 3];
     }
 }

@@ -1,6 +1,6 @@
 ﻿@page "/fetchinputs"
 @inject WebviewAppTest.AppState AppState
-
+<div id="frame">
 <h1>Input Devices</h1>
 
 <p>Select Input Device To Record From.</p>
@@ -14,14 +14,26 @@ else
     <table class="table">
         <thead>
             <tr>
+                <th></th>
                 <th>Device Name</th>
                 <th>Device Channels</th>
             </tr>
         </thead>
         <tbody>
              @for (var i = 0; i< inputs.Length; i+=2)
-            {
-                <tr>
+                {
+                    var index = i / 2;
+                    <tr>
+                    <td>
+                            @if(i/2 == inputIndex)
+                            {
+                                <input id="@i" type="checkbox" @onchange="@(e => SelectInput(index))" checked>
+                            } else
+                            {
+                                <input id="@i" type="checkbox" @onchange="@(e => SelectInput(index))">
+                            }
+
+                    </td>
                     <td>@inputs[i]</td>
                     <td>@inputs[i+1]</td>
                 </tr>
@@ -29,30 +41,23 @@ else
         </tbody>
     </table>
 }
+</div>
 
 @code {
     private string[] inputs;
-    private string[] outputs;
     private int inputIndex;
-    private int outputIndex;
 
     protected override async Task OnInitializedAsync()
     {
-        inputIndex = -1;
-        outputIndex = -1;
+        inputIndex = AppState.selectedInputDeviceIndex;
         inputs = AppState.selectedInputDevice;
-        outputs = AppState.selectedInputDevice;
     }
 
     private void SelectInput(int selected)
     {
+        System.Diagnostics.Debug.WriteLine(selected);
         AppState.selectedInputDeviceIndex = selected;
         inputIndex = selected;
-    }
-
-    private void SelectOutput(int selected)
-    {
-        AppState.selectedOutputDeviceIndex = selected;
-        outputIndex = selected;
+        this.StateHasChanged();
     }
 }

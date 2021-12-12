@@ -13,6 +13,7 @@ namespace WebviewAppTest
             pitchStatus = "stop";
             normalRecord = "enabled";
             selectedInputDeviceIndex = -1;
+            selectedOutputDeviceIndex = -1;
             pitchMethod = "None";
         }
 
@@ -35,11 +36,37 @@ namespace WebviewAppTest
 
         ///OUTPUT DEVICE STATUS
 
-        public event EventHandler outputDeviceChanged;
+        public event EventHandler outputChanged;
 
-        public int selectedOutputDeviceIndex { get; set; }
+        private void OnOutputChanged()
+        {
+            EventHandler eh = outputChanged;
+            if (eh != null)
+            {
+                outputChanged(this, EventArgs.Empty);
+            }
+        }
+
+
+        private int _selectedOutputDeviceIndex;
+        public int selectedOutputDeviceIndex
+        {
+            get { return _selectedOutputDeviceIndex; }
+            set
+            {
+                if (value != _selectedOutputDeviceIndex)
+                {
+                    _selectedOutputDeviceIndex = value;
+                    OnOutputChanged();
+                }
+            }
+        }
         public string[] selectedOutputDevice { get; set; }
 
+        public void setOutputDevices(string[] inp)
+        {
+            selectedOutputDevice = inp;
+        }
 
         ///RECORD STATUS
 
@@ -146,6 +173,11 @@ namespace WebviewAppTest
                 OnPitchValueChanged();
             }
         }
+
+        public void setPitchValue(string inp)
+        {
+            pitchValue = inp;
+        }
         public string pitchStatus
         {
             get { return _pitchStatus; }
@@ -173,7 +205,7 @@ namespace WebviewAppTest
 
         private void OnNormalRecordChanged()
         {
-            EventHandler eh = inputChanged;
+            EventHandler eh = normalRecordChanged;
             if (eh != null)
             {
                 normalRecordChanged(this, EventArgs.Empty);

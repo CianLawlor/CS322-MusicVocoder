@@ -1,9 +1,9 @@
-﻿@page "/fetchoutputs"
+﻿@page "/midi"
 @inject WebviewAppTest.AppState AppState
+<div id="frame">
+<h1>MIDI Devices</h1>
 
-<h1>Input Devices</h1>
-
-<p>Select Input Device To Record From.</p>
+<p>Select MIDI Device To Pitch Shift From.</p>
 
 @if (inputs == null)
 {
@@ -14,21 +14,20 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Device Name</th>
-                <th>Device Channels</th>
+                <th>MIDI Name</th>
             </tr>
         </thead>
         <tbody>
-             @for (var i = 0; i< inputs.Length; i+=2)
+             @for (var i = 0; i< inputs.Length; i++)
             {
                 <tr>
                     <td>@inputs[i]</td>
-                    <td>@inputs[i+1]</td>
                 </tr>
             }
         </tbody>
     </table>
 }
+</div>
 
 @code {
     private string[] inputs;
@@ -40,8 +39,7 @@ else
     {
         inputIndex = -1;
         outputIndex = -1;
-        inputs = AppState.selectedInputDevice;
-        outputs = AppState.selectedInputDevice;
+        inputs = AppState.selectedMIDIDevice;
     }
 
     private void SelectInput(int selected)

@@ -1,9 +1,9 @@
-﻿@page "/midi"
+﻿@page "/fetchoutputs"
 @inject WebviewAppTest.AppState AppState
+<div id="frame">
+<h1>Output Devices</h1>
 
-<h1>MIDI Devices</h1>
-
-<p>Select MIDI Device To Pitch Shift From.</p>
+<p>Select Output Device.</p>
 
 @if (inputs == null)
 {
@@ -14,42 +14,50 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>MIDI Name</th>
+                <th></th>
+                <th>Device Name</th>
+                <th>Device Channels</th>
             </tr>
         </thead>
         <tbody>
-             @for (var i = 0; i< inputs.Length; i++)
-            {
-                <tr>
+             @for (var i = 0; i< inputs.Length; i+=2)
+                {
+                    var index = i / 2;
+                    <tr>
+                    <td>
+                            @if(i/2 == inputIndex)
+                            {
+                                <input id="@i" type="checkbox" @onchange="@(e => SelectInput(index))" checked>
+                            } else
+                            {
+                                <input id="@i" type="checkbox" @onchange="@(e => SelectInput(index))">
+                            }
+
+                    </td>
                     <td>@inputs[i]</td>
+                    <td>@inputs[i+1]</td>
                 </tr>
             }
         </tbody>
     </table>
 }
+</div>
 
 @code {
     private string[] inputs;
-    private string[] outputs;
     private int inputIndex;
-    private int outputIndex;
 
     protected override async Task OnInitializedAsync()
     {
-        inputIndex = -1;
-        outputIndex = -1;
-        inputs = AppState.selectedMIDIDevice;
+        inputIndex = AppState.selectedOutputDeviceIndex;
+        inputs = AppState.selectedOutputDevice;
     }
 
     private void SelectInput(int selected)
     {
-        AppState.selectedInputDeviceIndex = selected;
-        inputIndex = selected;
-    }
-
-    private void SelectOutput(int selected)
-    {
+        System.Diagnostics.Debug.WriteLine(selected);
         AppState.selectedOutputDeviceIndex = selected;
-        outputIndex = selected;
+        inputIndex = selected;
+        this.StateHasChanged();
     }
 }

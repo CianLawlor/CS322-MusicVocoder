@@ -2,61 +2,64 @@
 @inject WebviewAppTest.AppState AppState
 @using System.Collections
 
-<h1>Set Pitch</h1> 
-<fieldset class="range__field">
-<input type="range" min="0" max="@stepMax" value="@pitchValue" class="slider" id="pitchSlider" @onchange="sliderChange"/>
-    <svg role="presentation" width="100%" height="10" xmlns="http://www.w3.org/2000/svg">
-      <rect class="range__tick" x="0%" y="3" width="1" height="10"></rect>
-      <rect class="range__tick" x="8.3%" y="3" width="1" height="10"></rect>
-      <rect class="range__tick" x="16.6%" y="3" width="1" height="10"></rect>
-      <rect class="range__tick" x="25%" y="3" width="1" height="10"></rect>
-      <rect class="range__tick" x="33.3%" y="3" width="1" height="10"></rect>
-      <rect class="range__tick" x="41.6%" y="3" width="1" height="10"></rect>
-      <rect class="range__tick" x="50%" y="3" width="1" height="10"></rect>
-      <rect class="range__tick" x="58.3%" y="3" width="1" height="10"></rect>
-      <rect class="range__tick" x="66.6%" y="3" width="1" height="10"></rect>
-      <rect class="range__tick" x="75%" y="3" width="1" height="10"></rect>
-      <rect class="range__tick" x="83.3%" y="3" width="1" height="10"></rect>
-      <rect class="range__tick" x="91.6%" y="3" width="1" height="10"></rect>
-      <rect class="range__tick" x="100%" y="3" width="1" height="10"></rect>
-   </svg>
-   <svg role="presentation" width="100%" height="14" xmlns="http://www.w3.org/2000/svg">
-      <text class="range__point" x="0%" y="14" width="1" height="10" text-anchor="start">X</text>
-       @for (var i = 0; i< stepMax-1; i++)
-       {
-            <text>
-                <text class="range__point" x=@percentage(i) y="14" width="1" height="10" text-anchor="middle">@notes[i]</text>
-            </text>
-       }
-       <text class="range__point" x="100%" y="14" width="1" height="10" text-anchor="end">@notes[stepMax-1]</text>
-   </svg>
-</fieldset>
-
-<select @onchange="@selectChange">
-    @foreach(var i in fullNotes[pitchValue])
-    {
-        @if(i == -1)
-        {
-            <option value="">None</option>
-        } else
-        {
-            if (i == pitchSelect)
+<div id="frame">
+    <h1>Set Pitch</h1>
+    <fieldset class="range__field">
+        <input type="range" min="0" max="@stepMax" value="@pitchValue" class="slider" id="pitchSlider" @onchange="sliderChange" />
+        <svg role="presentation" width="100%" height="10" xmlns="http://www.w3.org/2000/svg">
+            <rect class="range__tick" x="0%" y="3" width="1" height="10"></rect>
+            <rect class="range__tick" x="8.3%" y="3" width="1" height="10"></rect>
+            <rect class="range__tick" x="16.6%" y="3" width="1" height="10"></rect>
+            <rect class="range__tick" x="25%" y="3" width="1" height="10"></rect>
+            <rect class="range__tick" x="33.3%" y="3" width="1" height="10"></rect>
+            <rect class="range__tick" x="41.6%" y="3" width="1" height="10"></rect>
+            <rect class="range__tick" x="50%" y="3" width="1" height="10"></rect>
+            <rect class="range__tick" x="58.3%" y="3" width="1" height="10"></rect>
+            <rect class="range__tick" x="66.6%" y="3" width="1" height="10"></rect>
+            <rect class="range__tick" x="75%" y="3" width="1" height="10"></rect>
+            <rect class="range__tick" x="83.3%" y="3" width="1" height="10"></rect>
+            <rect class="range__tick" x="91.6%" y="3" width="1" height="10"></rect>
+            <rect class="range__tick" x="100%" y="3" width="1" height="10"></rect>
+        </svg>
+        <svg role="presentation" width="100%" height="14" xmlns="http://www.w3.org/2000/svg">
+            <text class="range__point" x="0%" y="14" width="1" height="10" text-anchor="start">X</text>
+            @for (var i = 0; i < stepMax - 1; i++)
             {
-                <option selected value="@i">@i</option>
+                <text>
+                    <text class="range__point" x=@percentage(i) y="14" width="1" height="10" text-anchor="middle">@notes[i]</text>
+                </text>
+            }
+            <text class="range__point" x="100%" y="14" width="1" height="10" text-anchor="end">@notes[stepMax-1]</text>
+        </svg>
+    </fieldset>
+
+    <select @onchange="@selectChange">
+        @foreach (var i in fullNotes[pitchValue])
+        {
+            @if (i == -1)
+            {
+                <option value="">None</option>
             }
             else
             {
-                <option value="@i">@i</option>
+                if (i == pitchSelect)
+                {
+                    <option selected value="@i">@i</option>
+                }
+                else
+                {
+                    <option value="@i">@i</option>
+                }
             }
         }
-    }
-</select>
+    </select>
+</div>
 
 @code {
     private int pitchValue = 0;
     private int pitchSelect = -1;
 
-    string[] notes = new string[]{ "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#" };
+    string[] notes = new string[] { "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#" };
     List<List<String>> keys = new List<List<String>>();
     int stepMax;
     List<int> noteNumbers = new List<int>();  // Holds all Notes Generated ([A1, A#1, B1 ... F8, F#8, G8])
@@ -66,38 +69,41 @@
     {
         stepMax = notes.Length;
 
-        fullNotes.Add(new int[] {-1});
+        fullNotes.Add(new int[] { -1 });
         for (int j = 1; j < 13; j++)
         {
-            if(j < 4)
+            if (j < 4)
             {
-                fullNotes.Add(new int[]{0,1,2,3,4,5,6,7});
-            } else
+                fullNotes.Add(new int[] { 0, 1, 2, 3, 4, 5, 6, 7 });
+            }
+            else
             {
-                fullNotes.Add(new int[]{1,2,3,4,5,6,7});
+                fullNotes.Add(new int[] { 1, 2, 3, 4, 5, 6, 7 });
             }
         }
 
     }
 
-    private void sliderChange(ChangeEventArgs e){
+    private void sliderChange(ChangeEventArgs e)
+    {
         pitchValue = Int32.Parse(e.Value.ToString());
-        if(pitchValue != 0)
+        if (pitchValue != 0)
         {
-            if(!fullNotes[pitchValue].Contains(pitchSelect))
+            if (!fullNotes[pitchValue].Contains(pitchSelect))
             {
                 pitchSelect = fullNotes[pitchValue].First();
             }
 
             AppState.pitchValue = notes[pitchValue - 1] + pitchSelect;
-            
+
         }
     }
 
-    private void selectChange(ChangeEventArgs e){
+    private void selectChange(ChangeEventArgs e)
+    {
         pitchSelect = Int32.Parse(e.Value.ToString());
 
-        if(pitchSelect != -1)
+        if (pitchSelect != -1)
         {
             AppState.pitchValue = notes[pitchValue - 1] + pitchSelect;
         }

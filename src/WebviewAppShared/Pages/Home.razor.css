@@ -1,0 +1,84 @@
+#homeFrame {
+    display: grid;
+    /*grid-template-areas: "TL TR" "BL BR";*/
+    width: 100%;
+    height: 100%;
+    /*background-image: linear-gradient(to top left, rgba(0,0,0,1), rgba(13,92,33,1));*/
+    animation-name: BG;
+    animation-duration: 20s;
+    animation-iteration-count: infinite;
+    padding: 20px;
+}
+
+.row{
+    width: 100%;
+    height: 20%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 0;
+    color: white;
+}
+
+.row button {
+    background-color: #04AA6D;
+    border: none;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    font-size: 16px;
+    margin: 4px 2px;
+    border-radius: 4px;
+    height: 20px;
+    justify-content: center;
+    align-items: center;
+    transition: all .5s ease-in-out;
+}
+
+.row button:hover {
+    background-color: #018051;
+}
+
+#TL{
+    grid-area: TL;
+}
+
+#TR{
+    grid-area: TR;
+}
+
+#BL{
+    grid-area: BL;
+}
+
+#BR{
+    grid-area: BR;
+}
+
+#pitch{
+    text-align: center;
+}
+
+@keyframes BG {
+    0% {
+        background-color: rgb(7, 71, 23);
+    }
+
+    20% {
+        background-color: rgba(13,92,33,1);
+    }
+
+    40% {
+        background-color: rgb(7, 71, 23);
+    }
+
+    80% {
+        background-color: rgba(13,92,33,1);
+    }
+
+    100% {
+        background-color: rgb(7, 71, 23);
+    }
+}

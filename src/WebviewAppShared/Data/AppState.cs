@@ -141,6 +141,7 @@ namespace WebviewAppTest
             get { return _pitchValue; }
             set
             {
+                System.Diagnostics.Debug.WriteLine(value);
                 _pitchValue = value;
                 OnPitchValueChanged();
             }

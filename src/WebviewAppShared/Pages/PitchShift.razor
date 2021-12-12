@@ -52,11 +52,7 @@
     }
 </select>
 
-<button @onclick="@TogglePitch"> Enable </button>
-
 @code {
-    private string pitchStatus = "stop";
-
     private int pitchValue = 0;
     private int pitchSelect = -1;
 
@@ -92,7 +88,7 @@
             {
                 pitchSelect = fullNotes[pitchValue].First();
             }
-            System.Diagnostics.Debug.WriteLine(pitchSelect);
+
             AppState.pitchValue = notes[pitchValue - 1] + pitchSelect;
             
         }
@@ -106,20 +102,6 @@
             AppState.pitchValue = notes[pitchValue - 1] + pitchSelect;
         }
 
-    }
-
-    private void TogglePitch()
-    {   
-        if (AppState.pitchStatus == "stop" || AppState.pitchStatus == "")
-          {
-              AppState.pitchStatus = "record";
-              pitchStatus = AppState.pitchStatus;
-          }
-        else
-          {
-              AppState.pitchStatus = "stop";
-              pitchStatus = AppState.pitchStatus;
-          }
     }
 
     private string percentage(int i)

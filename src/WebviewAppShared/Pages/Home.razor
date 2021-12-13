@@ -2,16 +2,16 @@
 @inject WebviewAppTest.AppState AppState
 <div id="homeFrame">
     <div class="row">
-        <h2>Recording Status: @record</h2> 
-        <button @onclick="@ToggleRecord"> Toggle Record </button>
+        <h2>Recording Status:</h2> 
+        <button @onclick="@ToggleRecord"> @record </button>
     </div>
     <div class="row">
-        <h2>Unpitched Voice: @normal</h2> 
-        <button @onclick="@ToggleNormal"> Toggle Output </button>
+        <h2>Unpitched Voice:</h2> 
+        <button @onclick="@ToggleNormal"> @normal </button>
     </div>
     <div class="row">
-        <h2>Pitch Method: @method</h2> 
-        <button @onclick="@ToggleMethod"> Toggle Method </button>
+        <h2>Pitch Method: </h2> 
+        <button @onclick="@ToggleMethod"> @method </button>
     </div>
     <div class="row" id="pitch">
         <h2>@value</h2>

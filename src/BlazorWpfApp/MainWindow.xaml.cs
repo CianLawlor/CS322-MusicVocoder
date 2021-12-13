@@ -22,6 +22,7 @@ namespace BlazorWpfApp
         private AppState _appState = new();
         private int inputIndex = -1;
         private int outputIndex = -1;
+        private int MIDIIndex = -1;
         private string _recordStatus;
         private string _pitchValue = "";
         private string _pitchMethod;
@@ -50,6 +51,7 @@ namespace BlazorWpfApp
 
             _appState.inputChanged += new EventHandler(setInputIndex);
             _appState.outputChanged += new EventHandler(setOutputIndex);
+            _appState.MIDIChanged += new EventHandler(onNormalRecordUpdate);
             _appState.recordStatusChanged += new EventHandler(onRecordStatusUpdate);
             _appState.pitchValueChanged += new EventHandler(onPitchValueUpdate);
             _appState.pitchMethodChanged += new EventHandler(onPitchMethodUpdate);
@@ -164,6 +166,11 @@ namespace BlazorWpfApp
             inputIndex = ((AppState)sender).selectedInputDeviceIndex;
         }
 
+        private void setMIDIIndex(object sender, EventArgs e)
+        {
+            MIDIIndex = ((AppState)sender).selectedMIDIDeviceIndex;
+        }
+
         private void setOutputIndex(object sender, EventArgs e)
         {
             System.Diagnostics.Debug.WriteLine(((AppState)sender).selectedOutputDeviceIndex);
@@ -202,7 +209,7 @@ namespace BlazorWpfApp
             if (inputIndex != -1 && outputIndex != -1 && _recordStatus == "record")
             {
                 System.Diagnostics.Debug.WriteLine("record: " + _normalRecord);
-                if (_pitchMethod == "MIDI")
+                if (_pitchMethod == "MIDI" && MIDIIndex != -1)
                 {
                     System.Diagnostics.Debug.WriteLine("RUN CONNECT MIDI");
 
@@ -230,7 +237,7 @@ namespace BlazorWpfApp
                 waveOut = new WaveOut();
                 waveOut.DeviceNumber = outputIndex;
 
-                if (_pitchMethod != "none" && (_pitchValue != "" || (_pitchMethod == "MIDI")))
+                if (_pitchMethod != "none" && (_pitchValue != "" || (_pitchMethod == "MIDI" && MIDIIndex != -1)))
                 {
                     pitchStream.StartRecording();
                 }
@@ -250,6 +257,8 @@ namespace BlazorWpfApp
             {
                 if (midiIn != null)
                 {
+                    midiIn.Close();
+                    midiIn.Dispose();
                     midiIn = null;
                 }
                 if (waveOut != null)

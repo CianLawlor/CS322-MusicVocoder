@@ -126,6 +126,34 @@ namespace WebviewAppTest
             }
         }
 
+        //SELECTED INPUT DEVICE
+
+        public event EventHandler MIDIChanged;
+
+        private void OnMIDIChanged()
+        {
+            EventHandler eh = MIDIChanged;
+            if (eh != null)
+            {
+                MIDIChanged(this, EventArgs.Empty);
+            }
+        }
+
+
+        private int _selectedMIDIDeviceIndex;
+        public int selectedMIDIDeviceIndex
+        {
+            get { return _selectedMIDIDeviceIndex; }
+            set
+            {
+                if (value != _selectedMIDIDeviceIndex)
+                {
+                    _selectedMIDIDeviceIndex = value;
+                    OnMIDIChanged();
+                }
+            }
+        }
+
 
         //RECORD PITCH VALUE & STATUS
         public event EventHandler pitchStatusChanged;

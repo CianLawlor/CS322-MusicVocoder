@@ -14,13 +14,25 @@ else
     <table class="table">
         <thead>
             <tr>
+                <th></th>
                 <th>MIDI Name</th>
             </tr>
         </thead>
         <tbody>
              @for (var i = 0; i< inputs.Length; i++)
             {
+                var index = i;
                 <tr>
+                    <td>
+                            @if(i/2 == inputIndex)
+                            {
+                                <input id="@i" type="checkbox" @onchange="@(e => SelectInput(index))" checked>
+                            } else
+                            {
+                                <input id="@i" type="checkbox" @onchange="@(e => SelectInput(index))">
+                            }
+
+                    </td>
                     <td>@inputs[i]</td>
                 </tr>
             }
@@ -31,26 +43,17 @@ else
 
 @code {
     private string[] inputs;
-    private string[] outputs;
     private int inputIndex;
-    private int outputIndex;
 
     protected override async Task OnInitializedAsync()
     {
         inputIndex = -1;
-        outputIndex = -1;
         inputs = AppState.selectedMIDIDevice;
     }
 
     private void SelectInput(int selected)
     {
-        AppState.selectedInputDeviceIndex = selected;
+        AppState.selectedMIDIDeviceIndex = selected;
         inputIndex = selected;
-    }
-
-    private void SelectOutput(int selected)
-    {
-        AppState.selectedOutputDeviceIndex = selected;
-        outputIndex = selected;
     }
 }
